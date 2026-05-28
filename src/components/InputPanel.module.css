@@ -81,3 +81,116 @@
   padding: 4px 8px;
   font-size: 12px;
 }
+
+/* ─────────── Emoji picker ─────────── */
+
+.emojiPicker {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emojiTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.emojiTab {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-dim);
+}
+
+.emojiTab:hover { color: var(--text); }
+
+.emojiTabActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.emojiTabActive:hover { background: var(--accent-dim); }
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 2px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.emojiBtn {
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.emojiBtn:hover {
+  background: var(--panel);
+  border-color: var(--border);
+}
+
+/* ─────────── Template grid ─────────── */
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.1s, border-color 0.1s;
+}
+
+.templateCard:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.templateCardActive {
+  border-color: var(--accent);
+  background: rgba(255, 70, 85, 0.08);
+}
+
+.templateLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.templatePreview {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 8px;
+  line-height: 1;
+  color: var(--text-dim);
+  background: #0b0e13;
+  padding: 6px;
+  border-radius: 4px;
+  white-space: pre;
+  overflow: hidden;
+  max-height: 80px;
+}

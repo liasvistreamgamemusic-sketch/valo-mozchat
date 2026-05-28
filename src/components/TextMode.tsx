@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createBitmap, type Bitmap } from '../core/bitmap';
 import { hasGlyph, renderTextBitmap } from '../core/pixelFont';
 import { rasterizeText } from '../core/rasterize';
+import { EMOJI_CATEGORIES } from '../core/emojiList';
 import styles from './InputPanel.module.css';
 
 type Props = { onBitmap: (b: Bitmap) => void };
@@ -14,51 +15,103 @@ export default function TextMode({ onBitmap }: Props) {
   const [spacing, setSpacing] = useState(1);
   const [source, setSource] = useState<Source>('auto');
   const [rasterWidth, setRasterWidth] = useState(48);
+  const [openCategory, setOpenCategory] = useState<string>(EMOJI_CATEGORIES[0].name);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    const trimmed = text;
-    if (trimmed === '') {
+    if (text === '') {
       onBitmap(createBitmap(0, 0));
       return;
     }
-    const useFont =
-      source === 'pixelfont' || (source === 'auto' && [...trimmed].every(hasGlyph));
+    const allAscii = [...text].every(hasGlyph);
+    const useFont = source === 'pixelfont' || (source === 'auto' && allAscii);
     if (useFont) {
-      const b = renderTextBitmap(trimmed, { scale, spacing });
+      const b = renderTextBitmap(text, { scale, spacing });
       if (b) {
         onBitmap(b);
         return;
       }
     }
-    // Fall back to Canvas rasterization for non-ASCII / requested
-    const b = rasterizeText({ text: trimmed, targetWidth: rasterWidth, levels: 2 });
+    const b = rasterizeText({ text, targetWidth: rasterWidth, levels: 2 });
     onBitmap(b);
   }, [text, scale, spacing, source, rasterWidth, onBitmap]);
 
+  function insertAtCursor(toInsert: string) {
+    const el = inputRef.current;
+    if (!el) {
+      setText((t) => t + toInsert);
+      return;
+    }
+    const start = el.selectionStart ?? text.length;
+    const end = el.selectionEnd ?? text.length;
+    const next = text.slice(0, start) + toInsert + text.slice(end);
+    setText(next);
+    // Restore cursor after the inserted text
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + toInsert.length;
+      el.setSelectionRange(pos, pos);
+    });
+  }
+
+  const containsNonAscii = [...text].some((c) => !hasGlyph(c));
+  const effectiveSource: Source =
+    source === 'auto' ? (containsNonAscii ? 'rasterize' : 'pixelfont') : source;
+
   return (
     <div className={styles.panel}>
-      <h2 className={styles.heading}>テキストをピクセルアートに</h2>
+      <h2 className={styles.heading}>テキスト・絵文字をピクセルアートに</h2>
+
       <div className={styles.field}>
-        <label htmlFor="txt">テキスト</label>
+        <label htmlFor="txt">入力（文字 & 絵文字どちらもOK）</label>
         <input
+          ref={inputRef}
           id="txt"
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="GG / NICE / VALORANT など"
+          placeholder="GG / NICE / 🔥 / こんにちは など"
         />
       </div>
 
+      <div className={styles.emojiPicker}>
+        <div className={styles.emojiTabs}>
+          {EMOJI_CATEGORIES.map((cat) => (
+            <button
+              key={cat.name}
+              type="button"
+              className={`${styles.emojiTab} ${openCategory === cat.name ? styles.emojiTabActive : ''}`}
+              onClick={() => setOpenCategory(cat.name)}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+        <div className={styles.emojiGrid}>
+          {EMOJI_CATEGORIES.find((c) => c.name === openCategory)?.emojis.map((e) => (
+            <button
+              key={e}
+              type="button"
+              className={styles.emojiBtn}
+              onClick={() => insertAtCursor(e)}
+              title={`「${e}」を挿入`}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className={styles.field}>
-        <label htmlFor="src">レンダリング方式</label>
+        <label htmlFor="src">レンダリング方式（自動推奨）</label>
         <select id="src" value={source} onChange={(e) => setSource(e.target.value as Source)}>
-          <option value="auto">自動（ASCIIはドットフォント、それ以外はCanvas）</option>
-          <option value="pixelfont">5×7ドットフォント（ASCIIのみ）</option>
-          <option value="rasterize">Canvasラスタライズ（日本語/絵文字OK）</option>
+          <option value="auto">自動：ASCIIはドットフォント、絵文字/日本語はCanvas</option>
+          <option value="pixelfont">5×7ドットフォント（ASCIIのみ・最高画質）</option>
+          <option value="rasterize">Canvasラスタライズ（全文字対応）</option>
         </select>
       </div>
 
-      {(source === 'pixelfont' || source === 'auto') && (
+      {(effectiveSource === 'pixelfont') && (
         <div className={styles.row}>
           <div className={styles.field}>
             <label htmlFor="scale">スケール</label>
@@ -85,22 +138,22 @@ export default function TextMode({ onBitmap }: Props) {
         </div>
       )}
 
-      {source === 'rasterize' && (
+      {effectiveSource === 'rasterize' && (
         <div className={styles.field}>
-          <label htmlFor="rw">解像度（横ピクセル数）</label>
+          <label htmlFor="rw">解像度（横ピクセル数）: {rasterWidth}</label>
           <input
             id="rw"
-            type="number"
+            type="range"
             min={8}
-            max={120}
+            max={96}
             value={rasterWidth}
-            onChange={(e) => setRasterWidth(Math.max(8, Math.min(120, Number(e.target.value) || 8)))}
+            onChange={(e) => setRasterWidth(Number(e.target.value))}
           />
         </div>
       )}
 
       <p className={styles.hint}>
-        英数字・記号は内蔵ドットフォントで綺麗にレンダリングされます。日本語・絵文字を入力するとCanvasでラスタライズします。
+        英数字・記号は内蔵ドットフォントで綺麗にレンダリングされます。日本語・絵文字を入力するとCanvasラスタライザに自動で切り替わります。
       </p>
     </div>
   );

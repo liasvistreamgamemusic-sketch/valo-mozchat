@@ -1,12 +1,11 @@
 import styles from './ModeTabs.module.css';
 
-export type Mode = 'text' | 'draw' | 'image' | 'emoji';
+export type Mode = 'text' | 'draw' | 'template';
 
 const TABS: Array<{ id: Mode; label: string; icon: string }> = [
-  { id: 'text', label: 'テキスト', icon: 'A' },
+  { id: 'text', label: 'テキスト・絵文字', icon: 'A' },
   { id: 'draw', label: 'お絵描き', icon: '✎' },
-  { id: 'image', label: '画像', icon: '🖼' },
-  { id: 'emoji', label: '絵文字', icon: '☺' },
+  { id: 'template', label: 'テンプレート', icon: '★' },
 ];
 
 type Props = {

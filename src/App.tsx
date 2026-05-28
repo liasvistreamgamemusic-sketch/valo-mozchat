@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import ModeTabs, { type Mode } from './components/ModeTabs';
 import TextMode from './components/TextMode';
 import DrawMode from './components/DrawMode';
-import ImageMode from './components/ImageMode';
-import EmojiMode from './components/EmojiMode';
+import TemplateMode from './components/TemplateMode';
 import Preview from './components/Preview';
 import { createBitmap, type Bitmap } from './core/bitmap';
 import { encodeBitmap, type EncodeMode } from './core/blockEncoder';
@@ -23,7 +22,7 @@ export default function App() {
           <span className={styles.titleAccent}>VALORANT</span> モザイクチャット
         </h1>
         <p className={styles.subtitle}>
-          テキスト・お絵描き・画像・絵文字をピクセルアートに変換してチャットにペースト
+          テキスト・絵文字・お絵描き・テンプレートをピクセルアートに変換してチャットにペースト
         </p>
       </header>
 
@@ -33,8 +32,7 @@ export default function App() {
         <section className={styles.inputPanel}>
           {mode === 'text' && <TextMode onBitmap={setBitmap} />}
           {mode === 'draw' && <DrawMode bitmap={bitmap} onBitmap={setBitmap} />}
-          {mode === 'image' && <ImageMode onBitmap={setBitmap} />}
-          {mode === 'emoji' && <EmojiMode onBitmap={setBitmap} />}
+          {mode === 'template' && <TemplateMode onBitmap={setBitmap} />}
         </section>
 
         <section className={styles.outputPanel}>
