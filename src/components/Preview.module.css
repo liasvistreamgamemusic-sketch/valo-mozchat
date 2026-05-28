@@ -35,17 +35,18 @@
   padding: 12px;
   overflow: auto;
   min-height: 200px;
-  /* Monospace so the user sees true block alignment in the preview */
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  line-height: 1.0;
 }
 
 .pre {
   margin: 0;
   white-space: pre;
+  /* Monospace; block glyphs render at consistent width here. */
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Cascadia Mono",
+    "JetBrains Mono", "Noto Sans Mono", monospace;
   font-size: 14px;
+  /* line-height 1 keeps █▀▄░ visually butted together (no gaps between rows). */
+  line-height: 1;
   color: #e6e9ef;
-  /* Keep spacing crisp */
   letter-spacing: 0;
 }
 

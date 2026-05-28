@@ -43,8 +43,10 @@ export default function Preview({ text, encodeMode, onEncodeModeChange }: Props)
             value={encodeMode}
             onChange={(e) => onEncodeModeChange(e.target.value as EncodeMode)}
           >
-            <option value="halfblock">標準（▀▄█ + space）</option>
+            <option value="halfblock">標準（▀▄█ + ░背景）— VALORANT 推奨</option>
+            <option value="halfblock-space">スペース背景（▀▄█ + space）</option>
             <option value="quad">4階調（░▒▓█）</option>
+            <option value="quad-space">4階調（スペース背景）</option>
           </select>
         </div>
       </div>

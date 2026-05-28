@@ -18,14 +18,23 @@ function expect(label, got, want) {
   }
 }
 
-// 1. Encode a 2x2 bitmap: top-left + bottom-right
+// 1. Encode a 2x2 bitmap: top-left + bottom-right (default: '░' background)
 {
   const b = createBitmap(2, 2);
   setPixel(b, 0, 0, 4);
   setPixel(b, 1, 1, 4);
   const s = encodeBitmap(b, 'halfblock');
   // (0,0): top=on, bot=off -> '▀'   (1,0): top=off, bot=on -> '▄'
-  expect('2x2 halfblock', s, '▀▄');
+  expect('2x2 halfblock (░ bg)', s, '▀▄');
+}
+
+// 1b. Same bitmap with space background
+{
+  const b = createBitmap(2, 2);
+  setPixel(b, 0, 0, 4);
+  setPixel(b, 1, 1, 4);
+  const s = encodeBitmap(b, 'halfblock-space');
+  expect('2x2 halfblock (space bg)', s, '▀▄');
 }
 
 // 2. Encode full block 2x2
@@ -36,11 +45,26 @@ function expect(label, got, want) {
   expect('2x2 full block', s, '██');
 }
 
-// 3. Encode empty bitmap (2x2 all zeros) — rtrim should clean trailing spaces, line should remain empty
+// 3. Encode empty bitmap with '░' background — should be '░░' (no trimming)
 {
   const b = createBitmap(2, 2);
   const s = encodeBitmap(b, 'halfblock');
-  expect('empty 2x2', s, '');
+  expect('empty 2x2 (░ bg, not trimmed)', s, '░░');
+}
+
+// 3b. Empty bitmap with space — should trim to ''
+{
+  const b = createBitmap(2, 2);
+  const s = encodeBitmap(b, 'halfblock-space');
+  expect('empty 2x2 (space bg, trimmed)', s, '');
+}
+
+// 3c. Empty cells around a foreground pixel keep the full rectangle in ░ mode
+{
+  const b = createBitmap(4, 2);
+  setPixel(b, 1, 0, 4);
+  const s = encodeBitmap(b, 'halfblock');
+  expect('4x2 with one pixel (░ bg)', s, '░▀░░');
 }
 
 // 4. Render 'GG' with the 5x7 font, verify nonzero pixels and dimensions
@@ -67,12 +91,12 @@ function expect(label, got, want) {
   expect('getStats chars', stats.chars, 6);
 }
 
-// 6. quad encoding
+// 6. quad encoding — default uses '░' as level 0 for chat alignment
 {
   const b = createBitmap(5, 1);
   b.data[0] = 0; b.data[1] = 1; b.data[2] = 2; b.data[3] = 3; b.data[4] = 4;
-  const s = encodeBitmap(b, 'quad');
-  expect('quad encoding', s, ' ░▒▓█');
+  expect('quad (░ at level 0)', encodeBitmap(b, 'quad'), '░░▒▓█');
+  expect('quad-space (level 0 trimmed)', encodeBitmap(b, 'quad-space'), ' ░▒▓█');
 }
 
 if (failures > 0) {

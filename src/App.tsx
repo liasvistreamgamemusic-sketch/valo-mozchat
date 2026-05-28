@@ -47,7 +47,7 @@ export default function App() {
           ⚠ VALORANTのAA連投はスパム報告→制限の対象になる可能性があります。カスタム/プラベで先に試してください。
         </div>
         <div className={styles.notes}>
-          ピクセルは <code>▀ ▄ █</code> ＋スペースで構成されます（VALORANTチャットで安定して表示できる文字）。
+          ピクセルは <code>░ ▀ ▄ █</code> で構成されます（VALORANTの非等幅フォントでも幅が揃う U+2580–U+259F のブロック文字）。空セルに半角スペースを使うと幅が崩れるため <code>░</code> を背景に使うのが標準です。
         </div>
       </footer>
     </div>
